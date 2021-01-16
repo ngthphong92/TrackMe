@@ -21,7 +21,7 @@ class SessionHistoryFragment : BaseFragment<FragmentSessionHistoryBinding>() {
         super.onViewCreated(view, savedInstanceState)
         mapsActivity?.activityBinding?.fbRecord?.visibility = View.VISIBLE
         mapsActivity?.activityBinding?.fbRecord?.setOnClickListener {
-            val direction = SessionHistoryFragmentDirections.actionSessionHistoryFragmentToMapsFragment()
+            val direction = SessionHistoryFragmentDirections.actionSessionHistoryFragmentToTrackMeFragment()
             findNavController().navigate(direction)
         }
     }

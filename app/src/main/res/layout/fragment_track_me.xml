@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="session"
+            type="com.ngthphong92.trackme.data.model.Session" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            layout="@layout/fragment_maps"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="48dp"
+            app:layout_constraintBottom_toTopOf="@+id/tvDistance"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDistance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@{String.format(@string/distance, session.distance)}"
+            app:layout_constraintBottom_toTopOf="@+id/tvDistanceTitle"
+            app:layout_constraintEnd_toStartOf="@+id/tvSpeed"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Distance" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSpeed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@{String.format(@string/distance, session.averageSpeed)}"
+            app:layout_constraintBottom_toTopOf="@+id/tvSpeedTitle"
+            app:layout_constraintEnd_toStartOf="@+id/tvTime"
+            app:layout_constraintStart_toEndOf="@+id/tvDistance"
+            tools:text="Speed" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@{String.format(@string/distance, session.getCurrentDuration())}"
+            app:layout_constraintBottom_toTopOf="@+id/ibRecord"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvSpeed"
+            app:layout_constraintTop_toTopOf="@+id/tvDistance"
+            tools:text="Time" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDistanceTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/distance_title"
+            app:layout_constraintBottom_toTopOf="@+id/ibRecord"
+            app:layout_constraintEnd_toStartOf="@+id/tvSpeed"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSpeedTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/speed_title"
+            app:layout_constraintBottom_toTopOf="@+id/ibRecord"
+            app:layout_constraintEnd_toStartOf="@+id/tvTime"
+            app:layout_constraintStart_toEndOf="@+id/tvDistance" />
+
+        <ImageButton
+            android:id="@+id/ibRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:background="#00000000"
+            android:contentDescription="@string/record"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ibStop"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_goneMarginEnd="0dp"
+            app:recordState="@{session.state}"
+            tools:src="@drawable/ic_pause" />
+
+        <ImageButton
+            android:id="@+id/ibStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="32dp"
+            android:background="#00000000"
+            android:contentDescription="@string/stop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ibRecord"
+            app:layout_goneMarginStart="0dp"
+            app:stopState="@{session.state}"
+            tools:src="@drawable/ic_stop" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
