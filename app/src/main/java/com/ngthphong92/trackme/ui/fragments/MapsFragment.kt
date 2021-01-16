@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -15,7 +13,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.ngthphong92.trackme.R
 import com.ngthphong92.trackme.databinding.FragmentMapsBinding
 import com.ngthphong92.trackme.ui.BaseFragment
-import com.ngthphong92.trackme.ui.activity.MapsActivity
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>() {
     private lateinit var mMap: GoogleMap

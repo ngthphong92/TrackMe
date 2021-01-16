@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:text="@{String.format(@string/distance, session.averageSpeed)}"
+            android:text="@{String.format(@string/speed, session.averageSpeed)}"
             app:layout_constraintBottom_toTopOf="@+id/tvSpeedTitle"
             app:layout_constraintEnd_toStartOf="@+id/tvTime"
             app:layout_constraintStart_toEndOf="@+id/tvDistance"
@@ -53,7 +53,7 @@
             android:layout_marginBottom="32dp"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:text="@{String.format(@string/distance, session.getCurrentDuration())}"
+            android:text="@{session.getCurrentDuration()}"
             app:layout_constraintBottom_toTopOf="@+id/ibRecord"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvSpeed"
@@ -113,7 +113,7 @@
             app:layout_constraintStart_toEndOf="@+id/ibRecord"
             app:layout_goneMarginStart="0dp"
             app:stopState="@{session.state}"
-            tools:src="@drawable/ic_stop" />
+            android:src="@drawable/ic_stop" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

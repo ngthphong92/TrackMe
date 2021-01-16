@@ -6,18 +6,19 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.ngthphong92.trackme.R
 import com.ngthphong92.trackme.STATE_PAUSE
-import com.ngthphong92.trackme.STATE_RECORDING
+import com.ngthphong92.trackme.STATE_RECORD
 
 @BindingAdapter("recordState")
 fun bindRecordState(view: ImageButton, state: Int) {
-    view.scaleX = 2f
     when (state) {
-        STATE_RECORDING -> {
-            view.scaleY = 3f
+        STATE_RECORD -> {
+            view.scaleX = 2f
+            view.scaleY = 2.25f
             view.setImageDrawable(ContextCompat.getDrawable(view.context, R.drawable.ic_pause))
         }
         STATE_PAUSE -> {
-            view.scaleY = 2f
+            view.scaleX = 1.5f
+            view.scaleY = 1.5f
             view.setImageDrawable(ContextCompat.getDrawable(view.context, R.drawable.ic_resume))
         }
         else -> view.visibility = View.GONE

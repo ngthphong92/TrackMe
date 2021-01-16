@@ -6,5 +6,5 @@ const val HISTORY_SESSION_FILENAME = "session_history.json"
 const val DEFAULT_TIME_FORMAT = "HH:mm:ss"
 
 const val STATE_STOP = 0
-const val STATE_RECORDING = 1
+const val STATE_RECORD = 1
 const val STATE_PAUSE = 2

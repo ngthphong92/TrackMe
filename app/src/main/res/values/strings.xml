@@ -7,4 +7,6 @@
     <string name="speed">%s km/h</string>
     <string name="distance_title">Distance</string>
     <string name="speed_title">Title</string>
+    <string name="session_history_title">Session History</string>
+    <string name="session_track_me">Track Me</string>
 </resources>
