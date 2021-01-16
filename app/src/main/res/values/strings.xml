@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">TrackMe</string>
     <string name="title_activity_maps">Map</string>
+    <string name="record">record</string>
+    <string name="stop">stop</string>
+    <string name="distance">%s km</string>
+    <string name="speed">%s km/h</string>
+    <string name="distance_title">Distance</string>
+    <string name="speed_title">Title</string>
 </resources>
