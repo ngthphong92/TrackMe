@@ -10,6 +10,7 @@ import com.ngthphong92.trackme.R
 import com.ngthphong92.trackme.STATE_RECORD
 import com.ngthphong92.trackme.databinding.FragmentSessionHistoryBinding
 import com.ngthphong92.trackme.ui.BaseFragment
+import com.ngthphong92.trackme.ui.REQUEST_SUCCESS
 import com.ngthphong92.trackme.viewmodels.TrackMeViewModel
 
 class SessionHistoryFragment : BaseFragment<FragmentSessionHistoryBinding>() {
@@ -31,7 +32,10 @@ class SessionHistoryFragment : BaseFragment<FragmentSessionHistoryBinding>() {
 
     private fun bindInterfaceEvent() {
         trackMeActivity?.activityBinding?.fbRecord?.setOnClickListener {
-            trackMeViewModel.startRecord()
+            trackMeActivity?.checkNeededPermission { requestCode ->
+                if (requestCode == REQUEST_SUCCESS)
+                    trackMeViewModel.startRecord()
+            }
         }
     }
 
