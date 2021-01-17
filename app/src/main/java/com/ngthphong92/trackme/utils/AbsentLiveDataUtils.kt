@@ -1,12 +1,12 @@
-package com.ngthphong92.trackme.extension
+package com.ngthphong92.trackme.utils
 
 import androidx.lifecycle.LiveData
 
-class AbsentLiveData<T> private constructor() : LiveData<T>() {
+class AbsentLiveDataUtils<T> private constructor() : LiveData<T>() {
     companion object {
         @JvmStatic
         fun <T> create(): LiveData<T> {
-            return AbsentLiveData()
+            return AbsentLiveDataUtils()
         }
     }
 

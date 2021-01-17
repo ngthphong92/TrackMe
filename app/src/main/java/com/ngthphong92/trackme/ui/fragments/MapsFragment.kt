@@ -10,12 +10,17 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.ngthphong92.trackme.MAP_ZOOM_LEVEL
 import com.ngthphong92.trackme.R
 import com.ngthphong92.trackme.databinding.FragmentMapsBinding
 import com.ngthphong92.trackme.ui.BaseFragment
+import com.ngthphong92.trackme.utils.LocationUtils
 
-class MapsFragment : BaseFragment<FragmentMapsBinding>() {
+class MapsFragment : BaseFragment() {
+
     private lateinit var mMap: GoogleMap
+    private var mBinding: FragmentMapsBinding? = null
+    private lateinit var mLocationUtils: LocationUtils
 
     private val callback = OnMapReadyCallback { googleMap ->
         mMap = googleMap
@@ -25,13 +30,29 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentBinding = FragmentMapsBinding.inflate(inflater, container, false)
-        return fragmentBinding?.root
+        mBinding = FragmentMapsBinding.inflate(inflater, container, false)
+        return mBinding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mapFragment = childFragmentManager.findFragmentById(R.id.fcvMaps) as SupportMapFragment?
+        val mapFragment = childFragmentManager.findFragmentById(R.id.fcvMaps) as? SupportMapFragment?
+        mLocationUtils = LocationUtils(trackMeActivity!!)
+        mLocationUtils.getCurrentLocation()
         mapFragment?.getMapAsync(callback)
+        bindEvent()
+    }
+
+    private fun bindEvent() {
+        if (!mLocationUtils.locationLiveData.hasObservers())
+            mLocationUtils.locationLiveData.observe(viewLifecycleOwner) {
+                val location = CameraUpdateFactory.newLatLngZoom(LatLng(it?.latitude ?: 0.0, it?.longitude ?: 0.0), MAP_ZOOM_LEVEL)
+                mMap.animateCamera(location)
+                mLocationUtils.locationLiveData.removeObservers(viewLifecycleOwner)
+            }
+    }
+
+    companion object {
+        fun newInstance(): MapsFragment = MapsFragment()
     }
 }

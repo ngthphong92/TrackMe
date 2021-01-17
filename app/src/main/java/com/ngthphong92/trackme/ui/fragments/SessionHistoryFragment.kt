@@ -13,13 +13,14 @@ import com.ngthphong92.trackme.ui.BaseFragment
 import com.ngthphong92.trackme.ui.REQUEST_SUCCESS
 import com.ngthphong92.trackme.viewmodels.TrackMeViewModel
 
-class SessionHistoryFragment : BaseFragment<FragmentSessionHistoryBinding>() {
+class SessionHistoryFragment : BaseFragment() {
 
     private val mTrackMeViewModel: TrackMeViewModel by activityViewModels()
+    private var mBinding: FragmentSessionHistoryBinding? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentBinding = FragmentSessionHistoryBinding.inflate(inflater, container, false)
-        return fragmentBinding?.root
+        mBinding = FragmentSessionHistoryBinding.inflate(inflater, container, false)
+        return mBinding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

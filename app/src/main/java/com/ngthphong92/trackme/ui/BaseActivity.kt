@@ -9,8 +9,7 @@ import pub.devrel.easypermissions.EasyPermissions
 
 const val REQUEST_SUCCESS = 1
 const val REQUEST_FAILURE = -1
-open class BaseActivity<T> : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
-    var activityBinding: T? = null
+open class BaseActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private var requestPermissionCallback: ((Int) -> Unit)? = null
 
     fun checkNeededPermission(callback: (Int) -> Unit) {
