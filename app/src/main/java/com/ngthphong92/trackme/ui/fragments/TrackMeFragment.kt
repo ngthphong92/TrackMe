@@ -15,7 +15,7 @@ import com.ngthphong92.trackme.viewmodels.TrackMeViewModel
 
 class TrackMeFragment : BaseFragment<FragmentTrackMeBinding>() {
 
-    private val trackMeViewModel: TrackMeViewModel by activityViewModels()
+    private val mTrackMeViewModel: TrackMeViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentBinding = FragmentTrackMeBinding.inflate(inflater, container, false)
@@ -32,24 +32,24 @@ class TrackMeFragment : BaseFragment<FragmentTrackMeBinding>() {
 
     private fun bindInterfaceEvent() {
         fragmentBinding?.ibRecord?.setOnClickListener {
-            if (trackMeViewModel.currentSession.value?.state == STATE_PAUSE)
-                trackMeViewModel.startRecord()
+            if (mTrackMeViewModel.currentSession.value?.state == STATE_PAUSE)
+                mTrackMeViewModel.startRecord()
             else
-                trackMeViewModel.pauseRecord()
+                mTrackMeViewModel.pauseRecord()
         }
         fragmentBinding?.ibStop?.setOnClickListener {
-            trackMeViewModel.stopRecord()
+            mTrackMeViewModel.stopRecord()
         }
     }
 
     private fun bindEvent() {
-        if (!trackMeViewModel.currentSession.hasObservers())
-            trackMeViewModel.currentSession.observe(viewLifecycleOwner) {
+        if (!mTrackMeViewModel.currentSession.hasObservers())
+            mTrackMeViewModel.currentSession.observe(viewLifecycleOwner) {
                 fragmentBinding?.session = it
                 when (it?.state) {
                     STATE_STOP -> {
                         findNavController().navigateUp()
-                        trackMeViewModel.currentSession.removeObservers(viewLifecycleOwner)
+                        mTrackMeViewModel.currentSession.removeObservers(viewLifecycleOwner)
                     }
                 }
             }

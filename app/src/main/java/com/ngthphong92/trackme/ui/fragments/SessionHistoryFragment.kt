@@ -15,7 +15,7 @@ import com.ngthphong92.trackme.viewmodels.TrackMeViewModel
 
 class SessionHistoryFragment : BaseFragment<FragmentSessionHistoryBinding>() {
 
-    private val trackMeViewModel: TrackMeViewModel by activityViewModels()
+    private val mTrackMeViewModel: TrackMeViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentBinding = FragmentSessionHistoryBinding.inflate(inflater, container, false)
@@ -34,18 +34,18 @@ class SessionHistoryFragment : BaseFragment<FragmentSessionHistoryBinding>() {
         trackMeActivity?.activityBinding?.fbRecord?.setOnClickListener {
             trackMeActivity?.checkNeededPermission { requestCode ->
                 if (requestCode == REQUEST_SUCCESS)
-                    trackMeViewModel.startRecord()
+                    mTrackMeViewModel.startRecord()
             }
         }
     }
 
     private fun bindEvent() {
-        if (!trackMeViewModel.currentSession.hasObservers())
-            trackMeViewModel.currentSession.observe(viewLifecycleOwner) {
+        if (!mTrackMeViewModel.currentSession.hasObservers())
+            mTrackMeViewModel.currentSession.observe(viewLifecycleOwner) {
                 if (it?.state == STATE_RECORD) {
                     val direction = SessionHistoryFragmentDirections.actionSessionHistoryFragmentToTrackMeFragment()
                     findNavController().navigate(direction)
-                    trackMeViewModel.currentSession.removeObservers(viewLifecycleOwner)
+                    mTrackMeViewModel.currentSession.removeObservers(viewLifecycleOwner)
                 }
             }
     }
