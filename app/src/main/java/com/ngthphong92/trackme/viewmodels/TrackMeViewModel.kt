@@ -26,35 +26,24 @@ class TrackMeViewModel : ViewModel(), LifecycleObserver {
 
     internal fun startRecord() {
         mSessionLiveData.value = mSessionLiveData.value?.copy(state = STATE_RECORD) ?: Session(state = STATE_RECORD)
-        applyTrack()
+        applyOneTimeTrack()
     }
 
     internal fun pauseRecord() {
         mSessionLiveData.value = mSessionLiveData.value?.copy(state = STATE_PAUSE) ?: Session(state = STATE_PAUSE)
-        applyTrack()
+        applyOneTimeTrack()
     }
 
     internal fun stopRecord() {
         mSessionLiveData.value = mSessionLiveData.value?.copy(state = STATE_STOP) ?: Session(state = STATE_STOP)
-        applyTrack()
+        applyOneTimeTrack()
     }
 
-    private fun applyTrack() {
-        val sessionBuilder = storeSessionDataBuilder()
-        mWorkManager.beginUniqueWork(
-            TRACK_ME_WORK_NAME,
-            ExistingWorkPolicy.REPLACE,
-            OneTimeWorkRequest.from(TrackLocationWorker::class.java)
-        )
-            .then(sessionBuilder.build())
-            .enqueue()
-    }
-
-    private fun storeSessionDataBuilder(): OneTimeWorkRequest.Builder {
-        val builder = Data.Builder()
-        builder.putString(KEY_SESSION_DATA, customGson.toJson(mSessionLiveData.value))
-        val blurBuilder = OneTimeWorkRequestBuilder<TrackLocationWorker>()
-        blurBuilder.setInputData(builder.build())
-        return blurBuilder
+    private fun applyOneTimeTrack() {
+        val myData: Data = workDataOf(KEY_SESSION_DATA to customGson.toJson(mSessionLiveData.value))
+        val trackWork = OneTimeWorkRequestBuilder<TrackLocationWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(myData)
+        mWorkManager.beginUniqueWork(TRACK_ME_WORK_NAME, ExistingWorkPolicy.REPLACE, trackWork.build()).enqueue()
     }
 }

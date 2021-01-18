@@ -9,6 +9,7 @@ import pub.devrel.easypermissions.EasyPermissions
 
 const val REQUEST_SUCCESS = 1
 const val REQUEST_FAILURE = -1
+
 open class BaseActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private var requestPermissionCallback: ((Int) -> Unit)? = null
 
@@ -31,7 +32,7 @@ open class BaseActivity : AppCompatActivity(), EasyPermissions.PermissionCallbac
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {

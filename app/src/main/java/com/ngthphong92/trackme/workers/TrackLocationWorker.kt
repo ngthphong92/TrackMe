@@ -8,6 +8,7 @@ import com.ngthphong92.trackme.KEY_SESSION_DATA
 import com.ngthphong92.trackme.STATE_RECORD
 import com.ngthphong92.trackme.data.converter.customGson
 import com.ngthphong92.trackme.data.model.Session
+import com.ngthphong92.trackme.utils.makeStatusNotification
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 
@@ -15,18 +16,19 @@ class TrackLocationWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
-    override suspend fun doWork(): Result = coroutineScope {
-        try {
-            //Todo check again for non-null value data
-            val session = customGson.fromJson(inputData.getString(KEY_SESSION_DATA), Session::class.java)
-            if (session?.state == STATE_RECORD) {
-                delay(5000)
-                makeStatusNotification("Recording location", applicationContext)
+    override suspend fun doWork(): Result {
+        return coroutineScope {
+            try {
+                val session = customGson.fromJson(inputData.getString(KEY_SESSION_DATA), Session::class.java)
+                if (session?.state == STATE_RECORD) {
+                    delay(5000)
+                    makeStatusNotification("Recording location", applicationContext)
+                }
+                Result.success()
+            } catch (ex: Exception) {
+                Log.e(TAG, "Error", ex)
+                Result.failure()
             }
-            Result.success()
-        } catch (ex: Exception) {
-            Log.e(TAG, "Error", ex)
-            Result.failure()
         }
     }
 

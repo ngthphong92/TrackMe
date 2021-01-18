@@ -1,4 +1,4 @@
-package com.ngthphong92.trackme.workers
+package com.ngthphong92.trackme.utils
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

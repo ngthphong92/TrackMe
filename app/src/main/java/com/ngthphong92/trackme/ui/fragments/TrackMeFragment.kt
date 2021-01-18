@@ -7,10 +7,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.navigation.fragment.findNavController
+import com.ngthphong92.trackme.KEY_SESSION_DATA_SHARE_PREF
 import com.ngthphong92.trackme.R
 import com.ngthphong92.trackme.STATE_PAUSE
 import com.ngthphong92.trackme.STATE_STOP
+import com.ngthphong92.trackme.data.converter.customGson
 import com.ngthphong92.trackme.databinding.FragmentTrackMeBinding
+import com.ngthphong92.trackme.extension.removeFromSharePref
+import com.ngthphong92.trackme.extension.writeToSharePref
 import com.ngthphong92.trackme.ui.BaseFragment
 import com.ngthphong92.trackme.viewmodels.TrackMeViewModel
 
@@ -53,9 +57,11 @@ class TrackMeFragment : BaseFragment() {
     private fun bindEvent() {
         if (!mTrackMeViewModel.currentSession.hasObservers())
             mTrackMeViewModel.currentSession.observe(viewLifecycleOwner) {
+                trackMeActivity?.writeToSharePref(KEY_SESSION_DATA_SHARE_PREF, customGson.toJson(it))
                 mBinding?.session = it
                 when (it?.state) {
                     STATE_STOP -> {
+                        trackMeActivity?.removeFromSharePref(KEY_SESSION_DATA_SHARE_PREF)
                         findNavController().navigateUp()
                         mTrackMeViewModel.currentSession.removeObservers(viewLifecycleOwner)
                     }
