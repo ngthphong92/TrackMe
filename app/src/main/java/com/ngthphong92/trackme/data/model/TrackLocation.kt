@@ -12,5 +12,7 @@ data class TrackLocation(
     @Expose
     var latLng: LatLng? = null,
     @Expose
-    var time: Long = 0L
+    var time: Long = 0L,
+    @Expose
+    var speed: Float = 0f
 )

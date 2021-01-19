@@ -6,11 +6,11 @@
     <string name="distance">%s km</string>
     <string name="speed">%s km/h</string>
     <string name="distance_title">Distance</string>
-    <string name="speed_title">Title</string>
     <string name="session_history_title">Session History</string>
     <string name="session_track_me">Track Me</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="rationale_location_coarse">This app needs access to your location to know where you are.</string>
     <string name="location_and_coarse">Location and Coarse</string>
+    <string name="speed_title">Speed</string>
 </resources>

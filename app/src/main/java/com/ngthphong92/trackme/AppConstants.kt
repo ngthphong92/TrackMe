@@ -23,9 +23,13 @@ const val CHANNEL_ID = "VERBOSE_NOTIFICATION"
 const val NOTIFICATION_ID = 1
 const val TRACK_ME_WORK_NAME = "record_location_work"
 
-// Time format
+// Time
 const val DEFAULT_TIME_FORMAT = "HH:mm:ss"
+const val SECOND = 1000L
+const val MINUTE = SECOND * 60L
+const val HOUR = MINUTE * 60L
 const val PERIODIC_INTERVAL = 15L
 
 // Map
 const val MAP_ZOOM_LEVEL = 15f
+const val CUR_LOCATION_RADIUS = 30.0
