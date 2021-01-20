@@ -18,6 +18,10 @@ import com.ngthphong92.trackme.databinding.FragmentMapsBinding
 import com.ngthphong92.trackme.ui.BaseFragment
 import com.ngthphong92.trackme.utils.LocationUtils
 import java.util.*
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
 
 class MapsFragment : BaseFragment() {
 
@@ -49,10 +53,9 @@ class MapsFragment : BaseFragment() {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(hcmCity))
     }
 
-    fun updateCurrentSession(session: Session?, callbackFunc: (Session?) -> Unit) {
+    fun startUpdateCurrentSession(session: Session?, callbackFunc: (Session?) -> Unit) {
         mSession = session
         mCallbackFunction = callbackFunc
-        mLocationUtils.getCurrentLocation()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -77,42 +80,44 @@ class MapsFragment : BaseFragment() {
 
                 if (mSession?.state == STATE_RECORD) {
                     renderMap(curLocLatLng)
-
-                    if (mSession?.locationList?.isNullOrEmpty() == false) {
-                        val fromLoc = mSession?.locationList?.firstOrNull()?.latLng
-                        val result = FloatArray(3)
-                        Location.distanceBetween(
-                            fromLoc?.latitude ?: 0.0, fromLoc?.longitude ?: 0.0,
-                            it?.latitude ?: 0.0, it?.longitude ?: 0.0,
-                            result
-                        )
-                        mSession?.apply {
-                            this.distance = result[0] / 1000
-                            val curTime = Calendar.getInstance().timeInMillis
-                            val timeGap = curTime.minus(mSession?.locationList?.firstOrNull()?.time ?: 0).div(HOUR.toFloat())
-                            if (this.distance <= 0)
-                                return@observe
-                            locationList.add(
-                                TrackLocation(
-                                    latLng = curLocLatLng,
-                                    time = curTime,
-                                    speed = (this.distance * (1 / timeGap)) / timeGap
-                                )
-                            )
-                        }?.update()
-                    } else
-                        mSession?.locationList?.add(
-                            TrackLocation(
-                                latLng = curLocLatLng,
-                                time = Calendar.getInstance().timeInMillis
-                            )
-                        )
-
+                    recordLocation(it, curLocLatLng)
                     mCallbackFunction?.invoke(mSession)
                 }
 
                 mMap.animateCamera(location)
             }
+    }
+
+    private fun recordLocation(it: Location?, curLocLatLng: LatLng) {
+        if (mSession?.locationList?.isNullOrEmpty() == false) {
+            val firstLoc = mSession?.locationList?.firstOrNull()
+            val lastLoc = mSession?.locationList?.lastOrNull()
+            val firstLocLatLng = firstLoc?.latLng
+            val lastLocLatLng = lastLoc?.latLng
+            val distance = calculateDistance(
+                firstLocLatLng?.latitude ?: 0.0, firstLocLatLng?.longitude ?: 0.0,
+                it?.latitude ?: 0.0, it?.longitude ?: 0.0,
+            )
+            val requiredDistance = calculateDistance(
+                lastLocLatLng?.latitude ?: 0.0, lastLocLatLng?.longitude ?: 0.0,
+                it?.latitude ?: 0.0, it?.longitude ?: 0.0,
+            )
+            mSession?.apply {
+                if (requiredDistance > 0.01) {
+                    this.distance = floor(distance.toFloat() * 100) / 100
+                    val curTime = Calendar.getInstance().timeInMillis
+                    val timeGap = (curTime.minus(firstLoc?.time ?: 0)).div(HOUR.toFloat())
+                    val speed = floor((this.distance / timeGap) * 100) / 100
+                    locationList.add(
+                        TrackLocation(latLng = curLocLatLng, time = curTime, speed = speed)
+                    )
+                    update()
+                }
+            }
+        } else
+            mSession?.locationList?.add(
+                TrackLocation(latLng = curLocLatLng, time = Calendar.getInstance().timeInMillis)
+            )
     }
 
     private fun renderMap(curLocationLatLng: LatLng) {
@@ -132,6 +137,24 @@ class MapsFragment : BaseFragment() {
         )
         mPolylineOption?.add(curLocationLatLng)
         mMap.addPolyline(mPolylineOption)
+    }
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val theta = lon1 - lon2
+        var dist =
+            (sin(deg2rad(lat1)) * sin(deg2rad(lat2)) + (cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta))))
+        dist = acos(dist)
+        dist = rad2deg(dist)
+        dist *= 60 * 1.1515
+        return dist / 0.62137
+    }
+
+    private fun deg2rad(deg: Double): Double {
+        return deg * Math.PI / 180.0
+    }
+
+    private fun rad2deg(rad: Double): Double {
+        return rad * 180.0 / Math.PI
     }
 
     companion object {

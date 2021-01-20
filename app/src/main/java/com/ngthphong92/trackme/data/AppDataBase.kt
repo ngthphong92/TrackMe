@@ -5,14 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.ngthphong92.trackme.DEFAULT_DB
 import com.ngthphong92.trackme.data.converter.GenericTypeConverter
 import com.ngthphong92.trackme.data.dao.SessionHistoryDao
 import com.ngthphong92.trackme.data.model.SessionHistory
-import com.ngthphong92.trackme.workers.SessionHistoryDBWorker
 
 @Database(
     entities = [SessionHistory::class],
@@ -41,15 +37,6 @@ abstract class AppDataBase : RoomDatabase() {
             }
             return databaseBuilder
                 .fallbackToDestructiveMigration()
-                .addCallback(
-                    object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            val request = OneTimeWorkRequestBuilder<SessionHistoryDBWorker>().build()
-                            WorkManager.getInstance(context).enqueue(request)
-                        }
-                    }
-                )
                 .build()
         }
     }

@@ -1,46 +1,27 @@
 package com.ngthphong92.trackme.utils
 
+import android.content.Context
 import android.location.Location
-import android.os.Looper
+import android.location.LocationManager
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Task
+import com.ngthphong92.trackme.MIN_TIME_METER
+import com.ngthphong92.trackme.MIN_TIME_MS
 import com.ngthphong92.trackme.extension.isLocationEnabled
-import com.ngthphong92.trackme.ui.BaseActivity
 import com.ngthphong92.trackme.ui.REQUEST_SUCCESS
 import com.ngthphong92.trackme.ui.activity.TrackMeActivity
+
 
 class LocationUtils(private val activity: TrackMeActivity) {
 
     val locationLiveData = MutableLiveData<Location?>()
 
-    private var mFusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity)
-    private val mLocationCallback: LocationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            locationLiveData.postValue(locationResult.lastLocation)
-        }
-    }
-
     fun getCurrentLocation() {
         activity.checkNeededPermission { requestCode ->
             if (requestCode == REQUEST_SUCCESS && activity.isLocationEnabled()) {
-                mFusedLocationClient.lastLocation?.addOnCompleteListener { task: Task<Location?> ->
-                    val location = task.result
-                    if (location == null) {
-                        val mLocationRequest = LocationRequest()
-                        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                        mLocationRequest.interval = 0
-                        mLocationRequest.fastestInterval = 0
-                        mLocationRequest.numUpdates = 1
-                        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
-                        mFusedLocationClient.requestLocationUpdates(
-                            mLocationRequest, mLocationCallback,
-                            Looper.myLooper()
-                        )
-                    } else {
-                        if (locationLiveData.value != location)
-                            locationLiveData.postValue(location)
-                    }
+                val lm: LocationManager? = activity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager?
+                lm?.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_MS, MIN_TIME_METER) {
+                    if (locationLiveData.value != it)
+                        locationLiveData.postValue(it)
                 }
             }
         }

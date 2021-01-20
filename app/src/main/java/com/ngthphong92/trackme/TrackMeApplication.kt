@@ -6,6 +6,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.*
+import com.ngthphong92.trackme.data.AppDataBase
 import com.ngthphong92.trackme.di.viewModelModule
 import com.ngthphong92.trackme.extension.readFromSharePref
 import com.ngthphong92.trackme.workers.TrackLocationWorker
@@ -20,7 +21,7 @@ class TrackMeApplication : Application(), LifecycleObserver {
 
     override fun onCreate() {
         super.onCreate()
-        instance = this
+        applicationInstance = this
         trackMekWorkManager = WorkManager.getInstance(this)
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
         startKoin {
@@ -29,6 +30,10 @@ class TrackMeApplication : Application(), LifecycleObserver {
             koin.loadModules(listOf(viewModelModule))
             koin.createRootScope()
         }
+    }
+
+    fun getDatabaseInstant(useInMemoryDb: Boolean = false): AppDataBase {
+        return AppDataBase.getInstance(this, useInMemoryDb)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -52,7 +57,7 @@ class TrackMeApplication : Application(), LifecycleObserver {
 
     companion object {
         @Volatile
-        lateinit var instance: TrackMeApplication
+        lateinit var applicationInstance: TrackMeApplication
             private set
     }
 }

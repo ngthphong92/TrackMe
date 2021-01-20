@@ -9,5 +9,5 @@ data class SessionHistory(
     @PrimaryKey(autoGenerate = true)
     var historyId: Long? = 0L,
     @Expose
-    var sessionList: ArrayList<Session?> = arrayListOf()
+    var historyList: ArrayList<Session?> = arrayListOf()
 )

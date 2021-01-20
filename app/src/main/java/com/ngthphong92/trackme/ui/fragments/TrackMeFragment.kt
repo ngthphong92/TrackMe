@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.navigation.fragment.findNavController
-import com.ngthphong92.trackme.*
+import com.ngthphong92.trackme.KEY_SESSION_DATA_SHARE_PREF
+import com.ngthphong92.trackme.R
+import com.ngthphong92.trackme.STATE_PAUSE
+import com.ngthphong92.trackme.STATE_STOP
 import com.ngthphong92.trackme.data.converter.customGson
 import com.ngthphong92.trackme.data.model.Session
 import com.ngthphong92.trackme.databinding.FragmentTrackMeBinding
@@ -15,14 +18,12 @@ import com.ngthphong92.trackme.extension.removeFromSharePref
 import com.ngthphong92.trackme.extension.writeToSharePref
 import com.ngthphong92.trackme.ui.BaseFragment
 import com.ngthphong92.trackme.viewmodels.TrackMeViewModel
-import kotlinx.coroutines.*
 
 class TrackMeFragment : BaseFragment() {
 
     private val mTrackMeViewModel: TrackMeViewModel by activityViewModels()
     private var mBinding: FragmentTrackMeBinding? = null
     private var mMapsFragment: MapsFragment = MapsFragment.newInstance()
-    private lateinit var scheduleTrackJob: Job
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = FragmentTrackMeBinding.inflate(inflater, container, false)
@@ -59,20 +60,15 @@ class TrackMeFragment : BaseFragment() {
     private fun bindEvent() {
         if (!mTrackMeViewModel.currentSession.hasObservers())
             mTrackMeViewModel.currentSession.observe(viewLifecycleOwner) {
-                trackMeActivity?.writeToSharePref(KEY_SESSION_DATA_SHARE_PREF, customGson.toJson(it))
+                trackMeActivity?.writeToSharePref(
+                    KEY_SESSION_DATA_SHARE_PREF,
+                    customGson.toJson(it)
+                )
                 mBinding?.session = it
-                updateLatestLocation(it)
+                onStartUpdateLatestSession(it)
                 when (it?.state) {
-                    STATE_RECORD -> {
-                        scheduleTrackJob = CoroutineScope(Job() + Dispatchers.Default).launch {
-                            while (mTrackMeViewModel.currentSession.value?.state == STATE_RECORD) {
-                                updateLatestLocation(mTrackMeViewModel.currentSession.value)
-                                delay(SECOND * 5)
-                            }
-                        }
-                    }
                     STATE_STOP -> {
-                        scheduleTrackJob.cancel()
+                        mTrackMeViewModel.saveSessionHistory()
                         trackMeActivity?.removeFromSharePref(KEY_SESSION_DATA_SHARE_PREF)
                         findNavController().navigateUp()
                         mTrackMeViewModel.currentSession.removeObservers(viewLifecycleOwner)
@@ -81,8 +77,8 @@ class TrackMeFragment : BaseFragment() {
             }
     }
 
-    private fun updateLatestLocation(it: Session?) {
-        mMapsFragment.updateCurrentSession(it) { newSession ->
+    private fun onStartUpdateLatestSession(it: Session?) {
+        mMapsFragment.startUpdateCurrentSession(it) { newSession ->
             mBinding?.session = newSession
         }
     }
