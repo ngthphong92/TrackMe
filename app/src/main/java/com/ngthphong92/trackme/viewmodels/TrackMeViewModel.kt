@@ -48,6 +48,7 @@ class TrackMeViewModel : BaseViewModel() {
     }
 
     fun saveSessionHistory(session: Session? = null) {
+        mSessionLiveData.value = Session()
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 database.runCatching { database.sessionHistoryDao().get() }
