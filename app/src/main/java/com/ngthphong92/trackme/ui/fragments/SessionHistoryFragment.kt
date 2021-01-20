@@ -119,11 +119,13 @@ class SessionHistoryFragment : BaseFragment() {
             val toLoc = item?.locationList?.lastOrNull()
             MapsInitializer.initialize(binding.root.context)
             map = googleMap
-            map.uiSettings?.isCompassEnabled = false
-            map.uiSettings?.isMapToolbarEnabled = false
-            map.uiSettings?.isScrollGesturesEnabled = false
-            map.uiSettings?.isZoomControlsEnabled = false
-            map.uiSettings?.setAllGesturesEnabled(false)
+            map.uiSettings?.apply {
+                isCompassEnabled = false
+                isMapToolbarEnabled = false
+                isScrollGesturesEnabled = false
+                isZoomControlsEnabled = false
+                setAllGesturesEnabled(false)
+            }
             map.addMarker(
                 MarkerOptions()
                     .position(LatLng(fromLoc?.latLng?.latitude ?: 0.0, fromLoc?.latLng?.longitude ?: 0.0))
