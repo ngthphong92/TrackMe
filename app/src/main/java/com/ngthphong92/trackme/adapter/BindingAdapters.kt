@@ -1,12 +1,15 @@
 package com.ngthphong92.trackme.adapter
 
+import android.graphics.Bitmap
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.ngthphong92.trackme.R
 import com.ngthphong92.trackme.STATE_PAUSE
 import com.ngthphong92.trackme.STATE_RECORD
+
 
 @BindingAdapter("recordState")
 fun bindRecordState(view: ImageButton, state: Int) {
@@ -33,4 +36,9 @@ fun bindStopState(view: ImageButton, state: Int) {
         STATE_PAUSE -> view.visibility = View.VISIBLE
         else -> view.visibility = View.GONE
     }
+}
+
+@BindingAdapter("bind:imageBitmap")
+fun loadImage(iv: ImageView, bitmap: Bitmap?) {
+    iv.setImageBitmap(bitmap)
 }

@@ -18,6 +18,10 @@ import com.ngthphong92.trackme.extension.removeFromSharePref
 import com.ngthphong92.trackme.extension.writeToSharePref
 import com.ngthphong92.trackme.ui.BaseFragment
 import com.ngthphong92.trackme.viewmodels.TrackMeViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class TrackMeFragment : BaseFragment() {
 
@@ -36,9 +40,9 @@ class TrackMeFragment : BaseFragment() {
         trackMeActivity?.activityBinding?.mtMaps?.title = getString(R.string.session_track_me)
 
         childFragmentManager.commit {
-            replace(R.id.flMapsContainer, mMapsFragment)
+            replace(mBinding?.mvMaps?.id ?: return@commit, mMapsFragment)
             setReorderingAllowed(true)
-            addToBackStack(MapsFragment::class.java.name)
+            addToBackStack(null)
         }
 
         bindInterfaceEvent()
@@ -68,10 +72,13 @@ class TrackMeFragment : BaseFragment() {
                 onStartUpdateLatestSession(it)
                 when (it?.state) {
                     STATE_STOP -> {
-                        mTrackMeViewModel.saveSessionHistory()
-                        trackMeActivity?.removeFromSharePref(KEY_SESSION_DATA_SHARE_PREF)
-                        findNavController().navigateUp()
-                        mTrackMeViewModel.currentSession.removeObservers(viewLifecycleOwner)
+                        mTrackMeViewModel.saveSessionHistory {
+                            CoroutineScope(Job() + Dispatchers.Main).launch {
+                                trackMeActivity?.removeFromSharePref(KEY_SESSION_DATA_SHARE_PREF)
+                                findNavController().navigateUp()
+                                mTrackMeViewModel.currentSession.removeObservers(viewLifecycleOwner)
+                            }
+                        }
                     }
                 }
             }

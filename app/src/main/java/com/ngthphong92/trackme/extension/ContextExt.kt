@@ -4,6 +4,7 @@ import android.content.Context
 import com.ngthphong92.trackme.TRACK_ME_SHARE_PREF
 import com.ngthphong92.trackme.data.converter.customGson
 
+
 fun Context.writeToSharePref(key: String, value: Any?) {
     val sharedPref = this.getSharedPreferences(TRACK_ME_SHARE_PREF, Context.MODE_PRIVATE) ?: return
     with(sharedPref.edit()) {

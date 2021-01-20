@@ -44,6 +44,7 @@
             android:contentDescription="@string/record"
             android:visibility="gone"
             app:rippleColor="#B10201"
+            app:layout_anchorGravity="bottom|right|end"
             app:srcCompat="@drawable/ic_record"
             app:tint="#C63433" />
 

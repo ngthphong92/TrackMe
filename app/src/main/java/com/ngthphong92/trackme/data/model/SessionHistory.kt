@@ -6,8 +6,8 @@ import com.google.gson.annotations.Expose
 
 @Entity
 data class SessionHistory(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     var historyId: Long? = 0L,
     @Expose
-    var historyList: ArrayList<Session?> = arrayListOf()
+    var sessionList: ArrayList<Session?> = arrayListOf()
 )

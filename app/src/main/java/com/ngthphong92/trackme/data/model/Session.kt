@@ -9,8 +9,8 @@ import kotlin.math.floor
 
 @Entity
 data class Session(
-    @PrimaryKey(autoGenerate = true)
-    var sessionId: Long? = 0L,
+    @PrimaryKey
+    var sessionId: Int? = 0,
     @Expose
     var locationList: ArrayList<TrackLocation> = arrayListOf(),
     @Expose

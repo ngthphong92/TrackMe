@@ -47,16 +47,19 @@ class TrackMeViewModel : BaseViewModel() {
         }
     }
 
-    fun saveSessionHistory(session: Session? = null) {
-        mSessionLiveData.value = Session()
+    fun saveSessionHistory(session: Session? = null, onSuccessFunc: (() -> Unit)? = null) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 database.runCatching { database.sessionHistoryDao().get() }
                     .onSuccess {
                         val history = it ?: SessionHistory()
-                        history.historyList.add(session ?: currentSession.value)
-                        sessionHistory.postValue(history)
+                        val newSession = session ?: currentSession.value
+                        newSession?.sessionId = history.sessionList.size
+                        history.sessionList.add(0, newSession)
                         database.sessionHistoryDao().insert(history)
+                        onSuccessFunc?.invoke()
+                        sessionHistory.postValue(history)
+                        mSessionLiveData.postValue(Session())
                     }
             }
         }

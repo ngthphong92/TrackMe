@@ -31,7 +31,8 @@ const val HOUR = MINUTE * 60L
 const val PERIODIC_INTERVAL = 15L
 
 // Map
-const val MAP_ZOOM_LEVEL = 15f
+const val MAP_ZOOM_LEVEL_NEAR = 15f
+const val MAP_ZOOM_LEVEL_FAR = 12.5f
 const val CUR_LOCATION_RADIUS = 30.0
 const val MIN_TIME_MS = SECOND
 const val MIN_TIME_METER = 1f

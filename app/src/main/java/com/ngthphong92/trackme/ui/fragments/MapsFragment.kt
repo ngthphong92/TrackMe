@@ -13,6 +13,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.ngthphong92.trackme.*
 import com.ngthphong92.trackme.data.model.Session
+import com.ngthphong92.trackme.data.model.TrackLatLng
 import com.ngthphong92.trackme.data.model.TrackLocation
 import com.ngthphong92.trackme.databinding.FragmentMapsBinding
 import com.ngthphong92.trackme.ui.BaseFragment
@@ -31,18 +32,13 @@ class MapsFragment : BaseFragment() {
     private var mPolylineOption: PolylineOptions? = null
     private var mFromMarker: Marker? = null
     private var mToMarker: Circle? = null
+    private var mFromLoc: TrackLocation? = null
+    private var mToLoc: TrackLocation? = null
     private var mSession: Session? = null
     private var mCallbackFunction: ((Session?) -> Unit)? = null
 
     private val callback = OnMapReadyCallback { googleMap ->
         mMap = googleMap
-        val hcmCity = LatLng(10.8231, 106.6297)
-
-        googleMap?.uiSettings?.isCompassEnabled = true
-        googleMap?.uiSettings?.isMapToolbarEnabled = false
-        googleMap?.uiSettings?.isScrollGesturesEnabled = true
-        googleMap?.uiSettings?.isZoomControlsEnabled = true
-        googleMap?.uiSettings?.setAllGesturesEnabled(true)
 
         mPolylineOption = PolylineOptions().apply {
             width(5f)
@@ -50,7 +46,29 @@ class MapsFragment : BaseFragment() {
             color(ContextCompat.getColor(requireContext(), R.color.stop_poly_line))
         }
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(hcmCity))
+        googleMap?.uiSettings?.isMapToolbarEnabled = false
+        if (mToLoc?.latLng != null && mFromLoc?.latLng != null) {
+            googleMap?.uiSettings?.isCompassEnabled = false
+            googleMap?.uiSettings?.isScrollGesturesEnabled = false
+            googleMap?.uiSettings?.isZoomControlsEnabled = false
+            googleMap?.uiSettings?.setAllGesturesEnabled(false)
+            renderMap(
+                mToLoc?.latLng ?: return@OnMapReadyCallback,
+                mFromLoc?.latLng ?: return@OnMapReadyCallback
+            )
+            mMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(mToLoc?.latLng?.latitude ?: 0.0, mToLoc?.latLng?.longitude ?: 0.0), MAP_ZOOM_LEVEL_FAR
+                )
+            )
+        } else {
+            googleMap?.uiSettings?.isCompassEnabled = true
+            googleMap?.uiSettings?.isScrollGesturesEnabled = true
+            googleMap?.uiSettings?.isZoomControlsEnabled = true
+            googleMap?.uiSettings?.setAllGesturesEnabled(true)
+            val hcmCity = LatLng(mToLoc?.latLng?.latitude ?: 10.8231, mToLoc?.latLng?.longitude ?: 106.6297)
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(hcmCity, MAP_ZOOM_LEVEL_NEAR))
+        }
     }
 
     fun startUpdateCurrentSession(session: Session?, callbackFunc: (Session?) -> Unit) {
@@ -75,16 +93,14 @@ class MapsFragment : BaseFragment() {
     private fun bindEvent() {
         if (!mLocationUtils.locationLiveData.hasObservers())
             mLocationUtils.locationLiveData.observe(viewLifecycleOwner) {
-                val curLocLatLng = LatLng(it?.latitude ?: 0.0, it?.longitude ?: 0.0)
-                val location = CameraUpdateFactory.newLatLngZoom(curLocLatLng, MAP_ZOOM_LEVEL)
-
                 if (mSession?.state == STATE_RECORD) {
-                    renderMap(curLocLatLng)
+                    val curLocLatLng = LatLng(it?.latitude ?: 0.0, it?.longitude ?: 0.0)
+                    val location = CameraUpdateFactory.newLatLngZoom(curLocLatLng, MAP_ZOOM_LEVEL_NEAR)
+                    renderMap(TrackLatLng(latitude = curLocLatLng.latitude, longitude = curLocLatLng.longitude))
                     recordLocation(it, curLocLatLng)
                     mCallbackFunction?.invoke(mSession)
+                    mMap.animateCamera(location)
                 }
-
-                mMap.animateCamera(location)
             }
     }
 
@@ -109,33 +125,50 @@ class MapsFragment : BaseFragment() {
                     val timeGap = (curTime.minus(firstLoc?.time ?: 0)).div(HOUR.toFloat())
                     val speed = floor((this.distance / timeGap) * 100) / 100
                     locationList.add(
-                        TrackLocation(latLng = curLocLatLng, time = curTime, speed = speed)
+                        TrackLocation(
+                            latLng = TrackLatLng(latitude = curLocLatLng.latitude, longitude = curLocLatLng.longitude),
+                            time = curTime, speed = speed
+                        )
                     )
                     update()
                 }
             }
         } else
             mSession?.locationList?.add(
-                TrackLocation(latLng = curLocLatLng, time = Calendar.getInstance().timeInMillis)
+                TrackLocation(
+                    latLng = TrackLatLng(
+                        latitude = curLocLatLng.latitude,
+                        longitude = curLocLatLng.longitude
+                    ), time = Calendar.getInstance().timeInMillis
+                )
             )
     }
 
-    private fun renderMap(curLocationLatLng: LatLng) {
+    private fun renderMap(curLocationLatLng: TrackLatLng, fromLocationLatLng: TrackLatLng? = null) {
         if (mFromMarker == null)
             mFromMarker = mMap.addMarker(
                 MarkerOptions()
-                    .position(curLocationLatLng)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
+                    .position(
+                        LatLng(
+                            (fromLocationLatLng ?: curLocationLatLng).latitude ?: 0.0,
+                            (fromLocationLatLng ?: curLocationLatLng).longitude ?: 0.0
+                        )
+                    )
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
             )
         mToMarker?.remove()
         mToMarker = mMap.addCircle(
             CircleOptions()
-                .center(curLocationLatLng)
+                .center(LatLng(curLocationLatLng.latitude ?: 0.0, curLocationLatLng.longitude ?: 0.0))
                 .radius(CUR_LOCATION_RADIUS)
                 .strokeColor(ContextCompat.getColor(requireContext(), R.color.current_location_out))
                 .fillColor(ContextCompat.getColor(requireContext(), R.color.current_location_in))
         )
-        mPolylineOption?.add(curLocationLatLng)
+
+        if (mFromLoc != null && mFromLoc != null)
+            mPolylineOption?.add(LatLng(mFromLoc?.latLng?.latitude ?: 0.0, mFromLoc?.latLng?.longitude ?: 0.0))
+        mPolylineOption?.add(LatLng(curLocationLatLng.latitude ?: 0.0, curLocationLatLng.longitude ?: 0.0))
+
         mMap.addPolyline(mPolylineOption)
     }
 
@@ -158,6 +191,11 @@ class MapsFragment : BaseFragment() {
     }
 
     companion object {
-        fun newInstance(): MapsFragment = MapsFragment()
+        fun newInstance(fromLoc: TrackLocation? = null, toLoc: TrackLocation? = null): MapsFragment {
+            val mapsFragment = MapsFragment()
+            mapsFragment.mFromLoc = fromLoc
+            mapsFragment.mToLoc = toLoc
+            return mapsFragment
+        }
     }
 }

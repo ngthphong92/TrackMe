@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="session"
             type="com.ngthphong92.trackme.data.model.Session" />
+
+        <variable
+            name="imgBitmap"
+            type="android.graphics.Bitmap" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -28,6 +35,16 @@
                 android:id="@+id/ivMapsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:visibility="@{imgBitmap == null ? View.INVISIBLE : View.VISIBLE}"
+                app:layout_constraintDimensionRatio="1:0.75"
+                app:layout_constraintTop_toTopOf="parent"
+                bind:imageBitmap="@{imgBitmap}" />
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mvMaps"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:visibility="@{imgBitmap != null ? View.GONE : View.VISIBLE}"
                 app:layout_constraintDimensionRatio="1:0.75"
                 app:layout_constraintTop_toTopOf="parent" />
 

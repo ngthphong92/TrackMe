@@ -4,9 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.model.*
+import com.ngthphong92.trackme.CUR_LOCATION_RADIUS
+import com.ngthphong92.trackme.MAP_ZOOM_LEVEL_FAR
 import com.ngthphong92.trackme.R
 import com.ngthphong92.trackme.STATE_RECORD
 import com.ngthphong92.trackme.adapter.BaseDiffUtilCallback
@@ -40,23 +48,16 @@ class SessionHistoryFragment : BaseFragment() {
         trackMeActivity?.activityBinding?.mtMaps?.title = getString(R.string.session_history_title)
         mHistoryAdapter = BasePagedListAdapter(
             onCreateViewHolderFunc = { viewGroup, _ ->
-                ItemSessionHistoryBinding.inflate(
-                    LayoutInflater.from(viewGroup.context),
-                    viewGroup,
-                    false
-                )
+                ItemSessionHistoryBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
             },
             bindFunc = { binding, _, item, _ ->
                 if (binding is ItemSessionHistoryBinding) {
+                    renderMap(binding, item)
                     binding.session = item
                 }
             },
             diffUtilCallback = {
-                BaseDiffUtilCallback(
-                    areContentsTheSameFunc = { oldItem, newItem ->
-                        oldItem?.sessionId == newItem?.sessionId
-                    }
-                )
+                BaseDiffUtilCallback(areContentsTheSameFunc = { oldItem, newItem -> oldItem?.sessionId == newItem?.sessionId })
             }
         )
         mBinding?.rvSessionHistory?.adapter = mHistoryAdapter
@@ -72,6 +73,19 @@ class SessionHistoryFragment : BaseFragment() {
                     mTrackMeViewModel.startRecord()
             }
         }
+        mBinding?.rvSessionHistory?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0 || dy < 0 && trackMeActivity?.activityBinding?.fbRecord?.isShown == true) {
+                    trackMeActivity?.activityBinding?.fbRecord?.hide()
+                }
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    trackMeActivity?.activityBinding?.fbRecord?.show()
+                }
+            }
+        })
     }
 
     private fun bindEvent() {
@@ -86,13 +100,55 @@ class SessionHistoryFragment : BaseFragment() {
             }
         if (!mTrackMeViewModel.sessionHistory.hasObservers())
             mTrackMeViewModel.sessionHistory.observe(viewLifecycleOwner) {
-                if (!it?.historyList.isNullOrEmpty()) {
-                    it?.historyList?.toPagerList<Any>(trackMeActivity?.lifecycleScope) { data ->
+                if (!it?.sessionList.isNullOrEmpty()) {
+                    it?.sessionList?.toPagerList<Any>(trackMeActivity?.lifecycleScope) { data ->
                         CoroutineScope(Job() + Dispatchers.Main).launch {
                             mHistoryAdapter?.submitData(data)
                         }
                     }
                 }
             }
+    }
+
+    private fun renderMap(binding: ItemSessionHistoryBinding, item: Session?) {
+        var map: GoogleMap
+        binding.mvMaps.onCreate(null)
+        binding.mvMaps.onResume()
+        binding.mvMaps.getMapAsync { googleMap ->
+            val fromLoc = item?.locationList?.firstOrNull()
+            val toLoc = item?.locationList?.lastOrNull()
+            MapsInitializer.initialize(binding.root.context)
+            map = googleMap
+            map.uiSettings?.isCompassEnabled = false
+            map.uiSettings?.isMapToolbarEnabled = false
+            map.uiSettings?.isScrollGesturesEnabled = false
+            map.uiSettings?.isZoomControlsEnabled = false
+            map.uiSettings?.setAllGesturesEnabled(false)
+            map.addMarker(
+                MarkerOptions()
+                    .position(LatLng(fromLoc?.latLng?.latitude ?: 0.0, fromLoc?.latLng?.longitude ?: 0.0))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+            )
+            map.addCircle(
+                CircleOptions()
+                    .center(LatLng(toLoc?.latLng?.latitude ?: 0.0, toLoc?.latLng?.longitude ?: 0.0))
+                    .radius(CUR_LOCATION_RADIUS)
+                    .strokeColor(ContextCompat.getColor(requireContext(), R.color.current_location_out))
+                    .fillColor(ContextCompat.getColor(requireContext(), R.color.current_location_in))
+            )
+            val polylineOption = PolylineOptions().apply {
+                width(5f)
+                visible(true)
+                color(ContextCompat.getColor(requireContext(), R.color.stop_poly_line))
+            }
+            polylineOption.add(LatLng(fromLoc?.latLng?.latitude ?: 0.0, fromLoc?.latLng?.longitude ?: 0.0))
+            polylineOption.add(LatLng(toLoc?.latLng?.latitude ?: 0.0, toLoc?.latLng?.longitude ?: 0.0))
+            map.addPolyline(polylineOption)
+            map.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(toLoc?.latLng?.latitude ?: 0.0, toLoc?.latLng?.longitude ?: 0.0), MAP_ZOOM_LEVEL_FAR
+                )
+            )
+        }
     }
 }
