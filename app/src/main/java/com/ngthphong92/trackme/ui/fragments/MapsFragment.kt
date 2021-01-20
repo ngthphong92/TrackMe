@@ -16,8 +16,8 @@ import com.ngthphong92.trackme.data.model.Session
 import com.ngthphong92.trackme.data.model.TrackLatLng
 import com.ngthphong92.trackme.data.model.TrackLocation
 import com.ngthphong92.trackme.databinding.FragmentMapsBinding
+import com.ngthphong92.trackme.service.LocationService
 import com.ngthphong92.trackme.ui.BaseFragment
-import com.ngthphong92.trackme.utils.LocationUtils
 import java.util.*
 import kotlin.math.acos
 import kotlin.math.cos
@@ -28,7 +28,7 @@ class MapsFragment : BaseFragment() {
 
     private var mBinding: FragmentMapsBinding? = null
     private lateinit var mMap: GoogleMap
-    private lateinit var mLocationUtils: LocationUtils
+    private lateinit var mLocationService: LocationService
     private var mPolylineOption: PolylineOptions? = null
     private var mFromMarker: Marker? = null
     private var mToMarker: Circle? = null
@@ -84,15 +84,15 @@ class MapsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.fcvMaps) as? SupportMapFragment?
-        mLocationUtils = LocationUtils(trackMeActivity!!)
-        mLocationUtils.getCurrentLocation()
+        mLocationService = LocationService()
+        mLocationService.getCurrentLocation()
         mapFragment?.getMapAsync(callback)
         bindEvent()
     }
 
     private fun bindEvent() {
-        if (!mLocationUtils.locationLiveData.hasObservers())
-            mLocationUtils.locationLiveData.observe(viewLifecycleOwner) {
+        if (!mLocationService.locationLiveData.hasObservers())
+            mLocationService.locationLiveData.observe(viewLifecycleOwner) {
                 if (mSession?.state == STATE_RECORD) {
                     val curLocLatLng = LatLng(it?.latitude ?: 0.0, it?.longitude ?: 0.0)
                     val location = CameraUpdateFactory.newLatLngZoom(curLocLatLng, MAP_ZOOM_LEVEL_NEAR)
