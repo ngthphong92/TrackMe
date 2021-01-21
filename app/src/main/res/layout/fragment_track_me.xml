@@ -53,7 +53,7 @@
             android:layout_marginBottom="32dp"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:text="@{session.getDurationStr()}"
+            duration="@{session.duration}"
             app:layout_constraintBottom_toTopOf="@+id/ibRecord"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvSpeed"

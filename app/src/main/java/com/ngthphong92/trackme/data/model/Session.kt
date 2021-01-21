@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.Expose
 import com.ngthphong92.trackme.STATE_STOP
-import com.ngthphong92.trackme.extension.toFormat
 import kotlin.math.floor
 
 @Entity
@@ -25,10 +24,6 @@ data class Session(
     fun update() {
         duration = locationList.lastOrNull()?.time?.minus(locationList.firstOrNull()?.time ?: 0) ?: 0
         averageSpeed = floor((locationList.map { it.speed }.average().toFloat()) * 100) / 100
-    }
-
-    fun getDurationStr(): String {
-        return duration.toFormat()
     }
 
     fun getSpeed(): Float {

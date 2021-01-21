@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:includeFontPadding="false"
-                android:text="@{session.getDurationStr()}"
+                duration="@{session.duration}"
                 app:layout_constraintBottom_toBottomOf="@+id/tvDistanceTitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tvSpeed"

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.ngthphong92.trackme.R
@@ -41,4 +42,12 @@ fun bindStopState(view: ImageButton, state: Int) {
 @BindingAdapter("bind:imageBitmap")
 fun loadImage(iv: ImageView, bitmap: Bitmap?) {
     iv.setImageBitmap(bitmap)
+}
+
+@BindingAdapter("duration")
+fun TextView.setTime(duration: Long) {
+    val diffSeconds = duration / 1000 % 60
+    val diffMinutes = duration / (60 * 1000) % 60
+    val diffHours = duration / (60 * 60 * 1000) % 23
+    text = String.format("%02d:%02d:%02d", diffHours, diffMinutes, diffSeconds)
 }
