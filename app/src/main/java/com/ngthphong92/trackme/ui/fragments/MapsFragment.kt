@@ -10,14 +10,12 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.ngthphong92.trackme.CUR_LOCATION_RADIUS
-import com.ngthphong92.trackme.MAP_ZOOM_LEVEL_NEAR
-import com.ngthphong92.trackme.R
-import com.ngthphong92.trackme.STATE_RECORD
+import com.ngthphong92.trackme.*
 import com.ngthphong92.trackme.data.model.Session
 import com.ngthphong92.trackme.data.model.TrackLatLng
 import com.ngthphong92.trackme.databinding.FragmentMapsBinding
 import com.ngthphong92.trackme.ui.BaseFragment
+
 
 class MapsFragment : BaseFragment() {
 
@@ -69,23 +67,17 @@ class MapsFragment : BaseFragment() {
                     val lastLocLatLng = it?.locationList?.lastOrNull()?.latLng
                     val curLocLatLng = LatLng(lastLocLatLng?.latitude ?: 0.0, lastLocLatLng?.longitude ?: 0.0)
                     val location = CameraUpdateFactory.newLatLngZoom(curLocLatLng, MAP_ZOOM_LEVEL_NEAR)
-                    renderMap(TrackLatLng(latitude = curLocLatLng.latitude, longitude = curLocLatLng.longitude))
-                    mCallbackFunction?.invoke(mSession)
+                    renderMap(it, TrackLatLng(latitude = curLocLatLng.latitude, longitude = curLocLatLng.longitude))
+                    mCallbackFunction?.invoke(it)
                     mMap.animateCamera(location)
                 }
             }
     }
 
-    private fun renderMap(curLocationLatLng: TrackLatLng) {
+    private fun renderMap(curSession: Session?, curLocationLatLng: TrackLatLng) {
         if (mFromMarker == null)
             mFromMarker = mMap.addMarker(
-                MarkerOptions()
-                    .position(
-                        LatLng(
-                            (curLocationLatLng).latitude ?: 0.0,
-                            (curLocationLatLng).longitude ?: 0.0
-                        )
-                    )
+                MarkerOptions().position(LatLng((curLocationLatLng).latitude ?: 0.0, (curLocationLatLng).longitude ?: 0.0))
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
             )
         mToMarker?.remove()
@@ -96,7 +88,12 @@ class MapsFragment : BaseFragment() {
                 .strokeColor(ContextCompat.getColor(requireContext(), R.color.current_location_out))
                 .fillColor(ContextCompat.getColor(requireContext(), R.color.current_location_in))
         )
-        mPolylineOption?.add(LatLng(curLocationLatLng.latitude ?: 0.0, curLocationLatLng.longitude ?: 0.0))
+        if (curSession?.locationList?.size?.minus((mSession?.locationList?.size ?: 0)) ?: 0 > BUFFER_POLYLINE) {
+            repeat(curSession?.locationList?.size ?: 0) {
+                mPolylineOption?.add(LatLng(curLocationLatLng.latitude ?: 0.0, curLocationLatLng.longitude ?: 0.0))
+            }
+        } else
+            mPolylineOption?.add(LatLng(curLocationLatLng.latitude ?: 0.0, curLocationLatLng.longitude ?: 0.0))
         mMap.addPolyline(mPolylineOption)
     }
 

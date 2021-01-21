@@ -14,7 +14,6 @@ import com.ngthphong92.trackme.extension.removeFromSharePref
 import com.ngthphong92.trackme.service.LocationService
 import com.ngthphong92.trackme.ui.BaseActivity
 
-
 class TrackMeActivity : BaseActivity() {
 
     var activityBinding: ActivityMapBinding? = null

@@ -143,8 +143,9 @@ class SessionHistoryFragment : BaseFragment() {
                 visible(true)
                 color(ContextCompat.getColor(requireContext(), R.color.stop_poly_line))
             }
-            polylineOption.add(LatLng(fromLoc?.latLng?.latitude ?: 0.0, fromLoc?.latLng?.longitude ?: 0.0))
-            polylineOption.add(LatLng(toLoc?.latLng?.latitude ?: 0.0, toLoc?.latLng?.longitude ?: 0.0))
+            item?.locationList?.forEach {
+                polylineOption.add(LatLng(it.latLng?.latitude ?: 0.0, it.latLng?.longitude ?: 0.0))
+            }
             map.addPolyline(polylineOption)
             map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
