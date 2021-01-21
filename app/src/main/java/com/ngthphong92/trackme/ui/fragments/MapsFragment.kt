@@ -1,6 +1,5 @@
 package com.ngthphong92.trackme.ui.fragments
 
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,19 +15,13 @@ import com.ngthphong92.trackme.data.model.Session
 import com.ngthphong92.trackme.data.model.TrackLatLng
 import com.ngthphong92.trackme.data.model.TrackLocation
 import com.ngthphong92.trackme.databinding.FragmentMapsBinding
-import com.ngthphong92.trackme.service.LocationService
 import com.ngthphong92.trackme.ui.BaseFragment
 import java.util.*
-import kotlin.math.acos
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.sin
 
 class MapsFragment : BaseFragment() {
 
     private var mBinding: FragmentMapsBinding? = null
     private lateinit var mMap: GoogleMap
-    private lateinit var mLocationService: LocationService
     private var mPolylineOption: PolylineOptions? = null
     private var mFromMarker: Marker? = null
     private var mToMarker: Circle? = null
@@ -84,64 +77,22 @@ class MapsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.fcvMaps) as? SupportMapFragment?
-        mLocationService = LocationService()
-        mLocationService.getCurrentLocation()
         mapFragment?.getMapAsync(callback)
         bindEvent()
     }
 
     private fun bindEvent() {
-        if (!mLocationService.locationLiveData.hasObservers())
-            mLocationService.locationLiveData.observe(viewLifecycleOwner) {
+        if (trackMeActivity?.trackLocService?.sessionLiveData?.hasObservers() == false)
+            trackMeActivity?.trackLocService?.sessionLiveData?.observe(viewLifecycleOwner) {
                 if (mSession?.state == STATE_RECORD) {
-                    val curLocLatLng = LatLng(it?.latitude ?: 0.0, it?.longitude ?: 0.0)
+                    val lastLocLatLng = it?.locationList?.lastOrNull()?.latLng
+                    val curLocLatLng = LatLng(lastLocLatLng?.latitude ?: 0.0, lastLocLatLng?.longitude ?: 0.0)
                     val location = CameraUpdateFactory.newLatLngZoom(curLocLatLng, MAP_ZOOM_LEVEL_NEAR)
                     renderMap(TrackLatLng(latitude = curLocLatLng.latitude, longitude = curLocLatLng.longitude))
-                    recordLocation(it, curLocLatLng)
                     mCallbackFunction?.invoke(mSession)
                     mMap.animateCamera(location)
                 }
             }
-    }
-
-    private fun recordLocation(it: Location?, curLocLatLng: LatLng) {
-        if (mSession?.locationList?.isNullOrEmpty() == false) {
-            val firstLoc = mSession?.locationList?.firstOrNull()
-            val lastLoc = mSession?.locationList?.lastOrNull()
-            val firstLocLatLng = firstLoc?.latLng
-            val lastLocLatLng = lastLoc?.latLng
-            val distance = calculateDistance(
-                firstLocLatLng?.latitude ?: 0.0, firstLocLatLng?.longitude ?: 0.0,
-                it?.latitude ?: 0.0, it?.longitude ?: 0.0,
-            )
-            val requiredDistance = calculateDistance(
-                lastLocLatLng?.latitude ?: 0.0, lastLocLatLng?.longitude ?: 0.0,
-                it?.latitude ?: 0.0, it?.longitude ?: 0.0,
-            )
-            mSession?.apply {
-                if (requiredDistance > 0.01) {
-                    this.distance = floor(distance.toFloat() * 100) / 100
-                    val curTime = Calendar.getInstance().timeInMillis
-                    val timeGap = (curTime.minus(firstLoc?.time ?: 0)).div(HOUR.toFloat())
-                    val speed = floor((this.distance / timeGap) * 100) / 100
-                    locationList.add(
-                        TrackLocation(
-                            latLng = TrackLatLng(latitude = curLocLatLng.latitude, longitude = curLocLatLng.longitude),
-                            time = curTime, speed = speed
-                        )
-                    )
-                    update()
-                }
-            }
-        } else
-            mSession?.locationList?.add(
-                TrackLocation(
-                    latLng = TrackLatLng(
-                        latitude = curLocLatLng.latitude,
-                        longitude = curLocLatLng.longitude
-                    ), time = Calendar.getInstance().timeInMillis
-                )
-            )
     }
 
     private fun renderMap(curLocationLatLng: TrackLatLng, fromLocationLatLng: TrackLatLng? = null) {
@@ -170,24 +121,6 @@ class MapsFragment : BaseFragment() {
         mPolylineOption?.add(LatLng(curLocationLatLng.latitude ?: 0.0, curLocationLatLng.longitude ?: 0.0))
 
         mMap.addPolyline(mPolylineOption)
-    }
-
-    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val theta = lon1 - lon2
-        var dist =
-            (sin(deg2rad(lat1)) * sin(deg2rad(lat2)) + (cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta))))
-        dist = acos(dist)
-        dist = rad2deg(dist)
-        dist *= 60 * 1.1515
-        return dist / 0.62137
-    }
-
-    private fun deg2rad(deg: Double): Double {
-        return deg * Math.PI / 180.0
-    }
-
-    private fun rad2deg(rad: Double): Double {
-        return rad * 180.0 / Math.PI
     }
 
     companion object {

@@ -7,10 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.navigation.fragment.findNavController
-import com.ngthphong92.trackme.KEY_SESSION_DATA_SHARE_PREF
-import com.ngthphong92.trackme.R
-import com.ngthphong92.trackme.STATE_PAUSE
-import com.ngthphong92.trackme.STATE_STOP
+import com.ngthphong92.trackme.*
 import com.ngthphong92.trackme.data.converter.customGson
 import com.ngthphong92.trackme.data.model.Session
 import com.ngthphong92.trackme.databinding.FragmentTrackMeBinding
@@ -64,13 +61,14 @@ class TrackMeFragment : BaseFragment() {
     private fun bindEvent() {
         if (!mTrackMeViewModel.currentSession.hasObservers())
             mTrackMeViewModel.currentSession.observe(viewLifecycleOwner) {
-                trackMeActivity?.writeToSharePref(
-                    KEY_SESSION_DATA_SHARE_PREF,
-                    customGson.toJson(it)
-                )
+                trackMeActivity?.writeToSharePref(KEY_SESSION_DATA_SHARE_PREF, customGson.toJson(it))
+                trackMeActivity?.trackLocService?.curSession = it
                 mBinding?.session = it
                 onStartUpdateLatestSession(it)
                 when (it?.state) {
+                    STATE_RECORD -> {
+                        trackMeActivity?.trackLocService?.getCurrentLocation()
+                    }
                     STATE_STOP -> {
                         mTrackMeViewModel.saveSessionHistory {
                             CoroutineScope(Job() + Dispatchers.Main).launch {

@@ -8,7 +8,6 @@ const val HISTORY_SESSION_FILENAME = "session_history.json"
 const val STATE_STOP = 0
 const val STATE_RECORD = 1
 const val STATE_PAUSE = 2
-const val KEY_SESSION_DATA = "KEY_SESSION_DATA"
 const val KEY_SESSION_DATA_SHARE_PREF = "KEY_SESSION_DATA_SHARE_PREF"
 const val TRACK_ME_SHARE_PREF = "TRACK_ME_SHARE_PREF"
 
@@ -21,7 +20,7 @@ val NOTIFICATION_TITLE: CharSequence = "TrackMe Starting"
 const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Shows notifications whenever work starts"
 const val CHANNEL_ID = "VERBOSE_NOTIFICATION"
 const val NOTIFICATION_ID = 1
-const val TRACK_ME_WORK_NAME = "record_location_work"
+const val TRACK_ME_START_NOTIFICATION = "Recording location"
 
 // Time
 const val DEFAULT_TIME_FORMAT = "HH:mm:ss"

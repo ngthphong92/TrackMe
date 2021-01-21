@@ -3,7 +3,6 @@ package com.ngthphong92.trackme.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations.switchMap
 import androidx.lifecycle.viewModelScope
-import androidx.work.*
 import com.ngthphong92.trackme.*
 import com.ngthphong92.trackme.data.model.Session
 import com.ngthphong92.trackme.data.model.SessionHistory

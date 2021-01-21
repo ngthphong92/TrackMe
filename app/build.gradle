@@ -64,8 +64,6 @@ dependencies {
     //Coroutine
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
-    //WorkManager
-    implementation "androidx.work:work-runtime-ktx:2.4.0"
     //Room
     kapt "androidx.room:room-compiler:2.2.6"
     implementation "androidx.room:room-runtime:2.2.6"
