@@ -38,7 +38,7 @@ The following **STUFF** tech are used:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='https://drive.google.com/file/d/1YhuKSBZd_bd8cOR3PCr5njVPUBykFdRp/view?usp=sharing' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://github.com/ngthphong92/Assets/blob/main/walkthrough.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 ## Open-source libraries used
 
