@@ -20,7 +20,7 @@ val NOTIFICATION_TITLE: CharSequence = "TrackMe Starting"
 const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Shows notifications whenever work starts"
 const val CHANNEL_ID = "VERBOSE_NOTIFICATION"
 const val NOTIFICATION_ID = 1
-const val TRACK_ME_START_NOTIFICATION = "Recording location"
+const val TRACK_ME_START_NOTIFICATION = "Continue to record location"
 
 // Time
 const val DEFAULT_TIME_FORMAT = "HH:mm:ss"
